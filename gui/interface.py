@@ -129,7 +129,7 @@ class FPSBoosterGUI:
         # Instructions
         instructions = tk.Label(
             self.boost_frame,
-            text="Click 'Boost FPS' to apply real system optimizations for better gaming performance.\nThis will adjust power settings, disable unnecessary services, and optimize your system.",
+            text="Click 'Boost FPS' to apply real system optimizations for better gaming performance.\n\nIncludes:\n• 2 CPU Boosters: Priority Optimization & Affinity Management\n• 3 GPU Boosters: Low Latency Mode, Texture Cache & Shader Cache\n• System Optimizations: Power settings, background processes & more",
             bg=self.bg_color,
             fg=self.fg_color,
             font=("Arial", 10),
@@ -334,10 +334,13 @@ class FPSBoosterGUI:
                 self.progress_var.set(0)
                 self.results_text.delete(1.0, tk.END)
                 
-                # Apply optimizations
-                steps = 6
+                # Get GPU info for GPU-specific optimizations
+                gpu_info = self.hardware_detector.get_system_report().get('gpu', {})
+                
+                # Apply optimizations with GPU info
+                steps = 8
                 for i in range(steps):
-                    self.optimizer.apply_all_optimizations()
+                    self.optimizer.apply_all_optimizations(gpu_info=gpu_info if gpu_info.get('gpus') else None)
                     progress = ((i + 1) / steps) * 100
                     self.progress_var.set(progress)
                     self.root.update_idletasks()
@@ -368,6 +371,16 @@ class FPSBoosterGUI:
                     output += "\n"
                 
                 output += "=" * 60 + "\n"
+                output += "🚀 NEW FEATURES ADDED:\n"
+                output += "-" * 40 + "\n"
+                output += "  ⚡ 2 CPU Boosters:\n"
+                output += "     • CPU Priority Optimization\n"
+                output += "     • CPU Affinity Management\n"
+                output += "  🎮 3 GPU Boosters:\n"
+                output += "     • Low Latency Mode\n"
+                output += "     • Texture Cache Optimization\n"
+                output += "     • Shader Cache Enhancement\n"
+                output += "=" * 60 + "\n"
                 output += "⚠️ NOTE: Some optimizations may require administrator/root privileges.\n"
                 output += "⚠️ A system restart is recommended for changes to take full effect.\n"
                 output += "=" * 60 + "\n"
@@ -378,6 +391,7 @@ class FPSBoosterGUI:
                 messagebox.showinfo(
                     "Boost Complete",
                     f"Successfully applied {report['total_applied']} optimizations!\n\n"
+                    "New: 2 CPU Boosters + 3 GPU Boosters added!\n"
                     "A system restart is recommended for best results."
                 )
                 
