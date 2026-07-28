@@ -5,6 +5,16 @@ A multi-file, organized Python application that provides real system optimizatio
 ## Features
 
 - 🖥️ **Hardware Detection**: Automatically detects your CPU, GPU, RAM, and disk information
+- 🎮 **GPU VRAM Detection**: Detailed GPU information including:
+  - Total, used, and free VRAM monitoring
+  - Per-GPU details with driver versions
+  - CUDA availability detection for NVIDIA GPUs
+  - DirectX version detection (Windows)
+  - Support for NVIDIA, AMD, and Intel GPUs
+- ⚡ **GPU Optimization**: Intelligent GPU-specific optimizations:
+  - NVIDIA: Persistence mode, power limit management, PowerMizer optimization
+  - AMD: Performance profile tuning, compute mode optimization
+  - VRAM-based recommendations for optimal gaming performance
 - 📊 **Performance Scoring**: Get a performance score and recommendations for your system
 - ⚡ **Real FPS Boost**: Applies genuine system optimizations including:
   - Power plan optimization (High Performance mode)
@@ -81,10 +91,20 @@ When you run the application in GUI mode, you'll see three tabs:
 ### CLI Mode
 
 Run the application with `--cli` flag for command-line output. It will:
-- Display all hardware information
+- Display all hardware information including detailed GPU/VRAM stats
 - Show performance score and recommendations
-- Apply optimizations automatically
+- Apply optimizations automatically (including GPU-specific optimizations)
 - Display RAM status
+
+### GPU Information Available
+
+The hardware detection now provides comprehensive GPU information:
+- **GPU Count & Names**: List of all detected GPUs
+- **VRAM Metrics**: Total, used, and free VRAM in MB
+- **Driver Version**: Installed GPU driver version
+- **CUDA Support**: Detection of NVIDIA CUDA availability
+- **DirectX Version**: DirectX version on Windows systems
+- **Multi-GPU Support**: Works with NVIDIA, AMD, and Intel GPUs
 
 ## Optimizations Applied
 
@@ -95,6 +115,7 @@ Run the application with `--cli` flag for command-line output. It will:
 - ✅ Background service reduction
 - ✅ Visual effects optimization
 - ✅ Network interrupt moderation disabling
+- ✅ **GPU Optimization**: NVIDIA persistence mode, PowerMizer enablement, AMD hardware scheduling recommendations
 
 ### Linux
 - ✅ CPU governor set to performance mode (requires root)
@@ -102,10 +123,23 @@ Run the application with `--cli` flag for command-line output. It will:
 - ✅ Process priority optimization tips
 - ✅ Compositor disabling tips
 - ✅ RAM cache clearing (requires root)
+- ✅ **GPU Optimization**: NVIDIA persistence mode & power limits, AMD performance profile tuning
 
 ### macOS
 - ✅ Power settings optimization
 - ✅ Visual effects reduction
+
+### GPU-Specific Optimizations
+- **NVIDIA GPUs**: 
+  - Persistence mode enabled for reduced latency
+  - Power limit management for optimal performance
+  - PowerMizer prefer maximum performance (Windows)
+- **AMD GPUs**:
+  - Performance profile tuning (Linux)
+  - Hardware-accelerated GPU scheduling recommendations (Windows)
+- **VRAM Monitoring**:
+  - Low VRAM warnings for systems with <4GB
+  - Optimal capacity confirmation for systems with ≥8GB
 
 ## Important Notes
 
