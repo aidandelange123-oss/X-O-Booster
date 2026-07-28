@@ -17,13 +17,21 @@ A multi-file, organized Python application that provides real system optimizatio
   - VRAM-based recommendations for optimal gaming performance
 - 📊 **Performance Scoring**: Get a performance score and recommendations for your system
 - ⚡ **Real FPS Boost**: Applies genuine system optimizations including:
-  - Power plan optimization (High Performance mode)
-  - Game DVR disabling (Windows)
-  - Background process reduction
-  - Visual effects optimization
-  - Network adapter optimization
-  - CPU governor tuning (Linux)
-  - Memory cache clearing
+  - **CPU Boosters (2 New)**:
+    - CPU Priority Optimization for better process scheduling
+    - CPU Affinity Management for efficient core allocation
+  - **GPU Boosters (3 New)**:
+    - Low Latency Mode for reduced input lag
+    - Texture Cache Optimization for faster texture loading
+    - Shader Cache Enhancement to reduce stuttering
+  - **System Optimizations**:
+    - Power plan optimization (High Performance mode)
+    - Game DVR disabling (Windows)
+    - Background process reduction
+    - Visual effects optimization
+    - Network adapter optimization
+    - CPU governor tuning (Linux)
+    - Memory cache clearing
 - 💾 **RAM Monitor**: Real-time RAM usage monitoring with visual indicators
 - 🎨 **GUI Interface**: User-friendly graphical interface with tabs
 - 💻 **CLI Mode**: Command-line interface for advanced users
@@ -115,6 +123,13 @@ The hardware detection now provides comprehensive GPU information:
 - ✅ Background service reduction
 - ✅ Visual effects optimization
 - ✅ Network interrupt moderation disabling
+- ✅ **CPU Boosters**:
+  - CPU Priority Optimization (registry tweaks for better scheduling)
+  - CPU Affinity Management (efficient core allocation)
+- ✅ **GPU Boosters**:
+  - Low Latency Mode (NVIDIA Ultra Low Latency)
+  - Texture Cache Optimization (increased Direct3D texture memory)
+  - Shader Cache Enhancement (Direct3D shader pre-caching)
 - ✅ **GPU Optimization**: NVIDIA persistence mode, PowerMizer enablement, AMD hardware scheduling recommendations
 
 ### Linux
@@ -123,20 +138,36 @@ The hardware detection now provides comprehensive GPU information:
 - ✅ Process priority optimization tips
 - ✅ Compositor disabling tips
 - ✅ RAM cache clearing (requires root)
+- ✅ **CPU Boosters**:
+  - CPU Priority suggestions (nice command guidance)
+  - CPU Affinity management (taskset support with root)
+- ✅ **GPU Boosters**:
+  - Low Latency Mode (NVidia NVENC or AMD AFMF recommendations)
+  - Texture Cache (OpenGL cache optimization tips)
+  - Shader Cache (Vulkan pipeline library support)
 - ✅ **GPU Optimization**: NVIDIA persistence mode & power limits, AMD performance profile tuning
 
 ### macOS
 - ✅ Power settings optimization
 - ✅ Visual effects reduction
+- ✅ **CPU Boosters**:
+  - CPU Priority (automatic handling by macOS)
+  - CPU Affinity (automatic core management)
+- ✅ **GPU Boosters**:
+  - Low Latency Mode (Metal API automatic handling)
+  - Texture Cache (Metal API automatic management)
+  - Shader Cache (Metal compile-time shaders)
 
 ### GPU-Specific Optimizations
 - **NVIDIA GPUs**: 
   - Persistence mode enabled for reduced latency
   - Power limit management for optimal performance
   - PowerMizer prefer maximum performance (Windows)
+  - Ultra Low Latency mode support
 - **AMD GPUs**:
   - Performance profile tuning (Linux)
   - Hardware-accelerated GPU scheduling recommendations (Windows)
+  - AFMF (AMD Fluid Motion Frames) support recommendations
 - **VRAM Monitoring**:
   - Low VRAM warnings for systems with <4GB
   - Optimal capacity confirmation for systems with ≥8GB
