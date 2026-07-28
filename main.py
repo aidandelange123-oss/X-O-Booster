@@ -6,15 +6,13 @@ A real system optimizer to improve gaming performance
 import sys
 import os
 
-# Add the parent directory to the path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from fps_booster.utils.hardware import HardwareDetector
-from fps_booster.core.optimizer import SystemOptimizer
+# Import from local modules directly since we are in the root directory
+from utils.hardware import HardwareDetector
+from core.optimizer import SystemOptimizer
 
 # Only import GUI if tkinter is available
 try:
-    from fps_booster.gui.interface import FPSBoosterGUI
+    from gui.interface import FPSBoosterGUI
     GUI_AVAILABLE = True
 except ImportError:
     GUI_AVAILABLE = False
