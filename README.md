@@ -2,6 +2,38 @@
 
 A multi-file, organized Python application that provides real system optimizations to improve gaming FPS (frames per second). This is **not a simulation** - it applies actual system-level optimizations.
 
+## 🚀 Quick Start for Google Colab
+
+Perfect for AI/ML training! Copy and paste this code directly into your Google Colab notebook:
+
+```python
+# Clone the repository
+!git clone https://github.com/yourusername/X-O-Booster.git
+%cd X-O-Booster
+
+# Install dependencies
+!pip install psutil
+
+# Run RAM/VRAM optimization with help guide
+!python main.py --cli --help-cmd
+
+# Apply all optimizations for AI training
+!python main.py --cli
+```
+
+### Essential Commands for AI Training
+
+```python
+# Show complete help guide for RAM/VRAM management
+!python main.py --help-cmd
+
+# Optimize RAM before loading large datasets
+!python main.py --cli
+
+# Monitor RAM usage during training
+!python main.py --cli | grep -A 10 "RAM MONITOR"
+```
+
 ## Features
 
 - 🖥️ **Hardware Detection**: Automatically detects your CPU, GPU, RAM, and disk information
@@ -85,6 +117,20 @@ python main.py --cli
 ```
 
 ## Usage
+
+### 🤖 Google Colab / AI Training Mode
+
+For AI training and Google Colab environments, use the `/help` command to see all available RAM/VRAM optimization commands:
+
+```python
+# Show complete help guide
+!python main.py --help-cmd
+```
+
+This displays:
+- All available commands for RAM and VRAM optimization
+- Google Colab best practices
+- AI training notes for memory management
 
 ### GUI Mode
 
@@ -196,6 +242,11 @@ This application only applies safe, reversible system optimizations. All optimiz
 - Ensure tkinter is installed: `pip install tk` (or reinstall Python with tkinter)
 - Try running in CLI mode: `python main.py --cli`
 
+**Google Colab Issues:**
+- Make sure you've cloned the repository first: `!git clone <repo-url>`
+- Install dependencies: `!pip install psutil`
+- Use `--help-cmd` flag to see all available commands: `!python main.py --help-cmd`
+
 **Optimizations fail:**
 - Run the application as administrator/root
 - Check the results section for specific error messages
@@ -215,4 +266,32 @@ Feel free to submit issues and enhancement requests!
 
 ---
 
-**Made with ❤️ for gamers**
+**Made with ❤️ for gamers and AI researchers**
+
+## 📚 Command Reference
+
+### All Available Commands
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `/help` | Show complete help guide for RAM/VRAM optimization | `python main.py --help-cmd` |
+| `optimize ram` | Clear and optimize system RAM | Automatic in CLI mode |
+| `clear vram` | Clear GPU VRAM cache | Automatic during optimization |
+| `monitor ram` | Display RAM usage statistics | Shown in CLI output |
+| `apply optimizations` | Apply all system optimizations | Automatic in CLI mode |
+
+### Quick Command Examples
+
+```bash
+# Show help guide
+python main.py --help-cmd
+
+# Run full optimization (CLI mode)
+python main.py --cli
+
+# Run GUI mode
+python main.py
+
+# Force CLI mode even if GUI is available
+python main.py --no-gui
+```
