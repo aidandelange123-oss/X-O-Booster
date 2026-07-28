@@ -1,4 +1,4 @@
-# Real FPS Booster
+# X-O-Booster
 
 A multi-file, organized Python application that provides real system optimizations to improve gaming FPS (frames per second). This is **not a simulation** - it applies actual system-level optimizations.
 
@@ -21,7 +21,7 @@ A multi-file, organized Python application that provides real system optimizatio
 ## Project Structure
 
 ```
-fps_booster/
+X-O-Booster/
 ├── main.py                 # Main entry point
 ├── __init__.py
 ├── config/
@@ -56,14 +56,14 @@ pip install psutil
 
 3. Run the application:
 
-**GUI Mode (Default):**
+**GUI Mode:**
 ```bash
-python fps_booster/main.py
+python main.py
 ```
 
 **CLI Mode:**
 ```bash
-python fps_booster/main.py --cli
+python main.py --cli
 ```
 
 ## Usage
@@ -129,7 +129,7 @@ This application only applies safe, reversible system optimizations. All optimiz
 
 **GUI doesn't open:**
 - Ensure tkinter is installed: `pip install tk` (or reinstall Python with tkinter)
-- Try running in CLI mode: `python fps_booster/main.py --cli`
+- Try running in CLI mode: `python main.py --cli`
 
 **Optimizations fail:**
 - Run the application as administrator/root
