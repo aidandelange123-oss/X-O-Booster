@@ -6,6 +6,7 @@ Detects and reports system hardware specifications
 import platform
 import subprocess
 import re
+import os
 from typing import Dict, Any, Optional
 
 
@@ -207,109 +208,333 @@ class HardwareDetector:
         return ram_info
     
     def _get_gpu_info(self) -> Dict[str, Any]:
-        """Get GPU information."""
+        """Get GPU information including VRAM details."""
         gpu_info = {
             "gpus": [],
+            "gpu_details": [],
             "vram_total": None,
             "vram_used": None,
+            "vram_free": None,
+            "driver_version": None,
+            "cuda_available": False,
+            "directx_version": None,
         }
         
         if platform.system() == "Windows":
-            try:
-                result = subprocess.run(
-                    "wmic path win32_videocontroller get name",
-                    shell=True,
-                    capture_output=True,
-                    text=True,
-                    timeout=5
-                )
-                lines = result.stdout.strip().split('\n')[1:]  # Skip header
-                gpus = [line.strip() for line in lines if line.strip()]
-                gpu_info["gpus"] = gpus
-                
-                # Try to get VRAM info
-                result = subprocess.run(
-                    "wmic path win32_videocontroller get AdapterRAM",
-                    shell=True,
-                    capture_output=True,
-                    text=True,
-                    timeout=5
-                )
-                lines = result.stdout.strip().split('\n')[1:]
-                vram_list = []
-                for line in lines:
-                    if line.strip().isdigit():
-                        vram_bytes = int(line.strip())
-                        vram_mb = vram_bytes / (1024 * 1024)
-                        vram_list.append(round(vram_mb, 2))
-                
-                if vram_list:
-                    gpu_info["vram_total"] = sum(vram_list)
-                    
-            except Exception as e:
-                gpu_info["error"] = str(e)
+            gpu_info = self._get_windows_gpu_info(gpu_info)
         
         elif platform.system() == "Linux":
-            try:
-                # Try lspci for GPU detection
-                result = subprocess.run(
-                    "lspci | grep -i vga",
-                    shell=True,
-                    capture_output=True,
-                    text=True,
-                    timeout=5
-                )
-                if result.stdout:
-                    gpus = [line.split(":")[-1].strip() for line in result.stdout.strip().split('\n')]
-                    gpu_info["gpus"] = gpus
-                
-                # Try nvidia-smi for NVIDIA GPUs
-                result = subprocess.run(
-                    "nvidia-smi --query-gpu=name,memory.total --format=csv,noheader",
-                    shell=True,
-                    capture_output=True,
-                    text=True,
-                    timeout=5
-                )
-                if result.stdout:
-                    lines = result.stdout.strip().split('\n')
-                    gpus = []
-                    vram_list = []
-                    for line in lines:
-                        parts = line.split(",")
-                        if len(parts) >= 2:
-                            gpus.append(parts[0].strip())
-                            vram_mb = float(parts[1].strip().replace(" MiB", ""))
-                            vram_list.append(vram_mb)
-                    
-                    gpu_info["gpus"] = gpus
-                    if vram_list:
-                        gpu_info["vram_total"] = sum(vram_list)
-                        
-            except Exception as e:
-                gpu_info["error"] = str(e)
+            gpu_info = self._get_linux_gpu_info(gpu_info)
         
         elif platform.system() == "Darwin":
+            gpu_info = self._get_macos_gpu_info(gpu_info)
+        
+        # Try to detect CUDA availability
+        gpu_info["cuda_available"] = self._detect_cuda()
+        
+        # Detect DirectX version on Windows
+        if platform.system() == "Windows":
+            gpu_info["directx_version"] = self._detect_directx()
+        
+        return gpu_info
+    
+    def _get_windows_gpu_info(self, gpu_info: Dict[str, Any]) -> Dict[str, Any]:
+        """Get detailed GPU information on Windows."""
+        try:
+            # Get GPU names
+            result = subprocess.run(
+                "wmic path win32_videocontroller get name",
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            lines = result.stdout.strip().split('\n')[1:]  # Skip header
+            gpus = [line.strip() for line in lines if line.strip()]
+            gpu_info["gpus"] = gpus
+            
+            # Get detailed GPU information
+            result = subprocess.run(
+                "wmic path win32_videocontroller get name,AdapterRAM,DriverVersion,VideoProcessor",
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            lines = result.stdout.strip().split('\n')[1:]
+            vram_list = []
+            gpu_details = []
+            
+            for line in lines:
+                if not line.strip():
+                    continue
+                parts = line.split()
+                if len(parts) >= 2:
+                    # Parse the output - format varies
+                    gpu_detail = {}
+                    
+                    # Extract VRAM (AdapterRAM is in bytes)
+                    for part in parts:
+                        if part.isdigit() and len(part) > 6:  # VRAM in bytes
+                            vram_bytes = int(part)
+                            vram_mb = vram_bytes / (1024 * 1024)
+                            gpu_detail["vram_mb"] = round(vram_mb, 2)
+                            gpu_detail["vram_gb"] = round(vram_mb / 1024, 2)
+                            vram_list.append(vram_mb)
+                            break
+                    
+                    gpu_details.append(gpu_detail)
+            
+            gpu_info["gpu_details"] = gpu_details
+            if vram_list:
+                gpu_info["vram_total"] = sum(vram_list)
+            
+            # Try PowerShell for more detailed GPU info including usage
             try:
+                ps_cmd = """
+                Get-WmiObject Win32_VideoController | Select-Object Name, AdapterRAM, DriverVersion, CurrentHorizontalResolution, CurrentVerticalResolution | Format-List
+                """
                 result = subprocess.run(
-                    "system_profiler SPDisplaysDataType",
+                    f"powershell -Command \"{ps_cmd}\"",
                     shell=True,
                     capture_output=True,
                     text=True,
                     timeout=5
                 )
                 if result.stdout:
-                    # Parse output for GPU names
-                    lines = result.stdout.split('\n')
-                    current_gpu = None
-                    for line in lines:
-                        if "Chipset Model:" in line:
-                            current_gpu = line.split(":")[1].strip()
-                            gpu_info["gpus"].append(current_gpu)
-            except Exception as e:
-                gpu_info["error"] = str(e)
+                    # Parse PowerShell output for additional details
+                    pass
+            except:
+                pass
+                
+        except Exception as e:
+            gpu_info["error"] = str(e)
         
         return gpu_info
+    
+    def _get_linux_gpu_info(self, gpu_info: Dict[str, Any]) -> Dict[str, Any]:
+        """Get detailed GPU information on Linux."""
+        try:
+            # Try lspci for GPU detection
+            result = subprocess.run(
+                "lspci | grep -i vga",
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.stdout:
+                gpus = [line.split(":")[-1].strip() for line in result.stdout.strip().split('\n')]
+                gpu_info["gpus"] = gpus
+            
+            # Try nvidia-smi for NVIDIA GPUs with full details
+            result = subprocess.run(
+                "nvidia-smi --query-gpu=name,memory.total,memory.used,memory.free,driver_version --format=csv,noheader",
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.stdout:
+                lines = result.stdout.strip().split('\n')
+                gpus = []
+                vram_total_list = []
+                vram_used_list = []
+                vram_free_list = []
+                gpu_details = []
+                driver_version = None
+                
+                for line in lines:
+                    parts = line.split(",")
+                    if len(parts) >= 5:
+                        gpu_name = parts[0].strip()
+                        vram_total = float(parts[1].strip().replace(" MiB", ""))
+                        vram_used = float(parts[2].strip().replace(" MiB", ""))
+                        vram_free = float(parts[3].strip().replace(" MiB", ""))
+                        driver = parts[4].strip()
+                        
+                        gpus.append(gpu_name)
+                        vram_total_list.append(vram_total)
+                        vram_used_list.append(vram_used)
+                        vram_free_list.append(vram_free)
+                        
+                        gpu_details.append({
+                            "name": gpu_name,
+                            "vram_total_mb": vram_total,
+                            "vram_used_mb": vram_used,
+                            "vram_free_mb": vram_free,
+                            "vram_total_gb": round(vram_total / 1024, 2),
+                            "vram_used_gb": round(vram_used / 1024, 2),
+                            "vram_free_gb": round(vram_free / 1024, 2),
+                            "utilization": round((vram_used / vram_total) * 100, 2) if vram_total > 0 else 0
+                        })
+                        
+                        if driver_version is None:
+                            driver_version = driver
+                
+                gpu_info["gpus"] = gpus
+                gpu_info["gpu_details"] = gpu_details
+                gpu_info["driver_version"] = driver_version
+                
+                if vram_total_list:
+                    gpu_info["vram_total"] = sum(vram_total_list)
+                    gpu_info["vram_used"] = sum(vram_used_list)
+                    gpu_info["vram_free"] = sum(vram_free_list)
+            
+            # Try AMD ROCm if available
+            if not gpu_info.get("gpu_details"):
+                try:
+                    result = subprocess.run(
+                        "rocm-smi --showproductname",
+                        shell=True,
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    if result.stdout:
+                        # Parse ROCm output
+                        pass
+                except:
+                    pass
+            
+            # Try intel_gpu_top for Intel GPUs
+            if not gpu_info.get("gpu_details"):
+                try:
+                    result = subprocess.run(
+                        "intel_gpu_top -L",
+                        shell=True,
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    if result.stdout:
+                        # Parse Intel GPU output
+                        pass
+                except:
+                    pass
+                        
+        except Exception as e:
+            gpu_info["error"] = str(e)
+        
+        return gpu_info
+    
+    def _get_macos_gpu_info(self, gpu_info: Dict[str, Any]) -> Dict[str, Any]:
+        """Get detailed GPU information on macOS."""
+        try:
+            result = subprocess.run(
+                "system_profiler SPDisplaysDataType",
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.stdout:
+                lines = result.stdout.split('\n')
+                current_gpu = None
+                current_detail = {}
+                gpu_details = []
+                
+                for line in lines:
+                    if "Chipset Model:" in line:
+                        if current_gpu:
+                            gpu_details.append(current_detail)
+                        current_gpu = line.split(":")[1].strip()
+                        gpu_info["gpus"].append(current_gpu)
+                        current_detail = {"name": current_gpu}
+                    elif "Total Number of Cores:" in line:
+                        cores = line.split(":")[1].strip()
+                        current_detail["cores"] = cores
+                    elif "VRAM" in line or "vRAM" in line:
+                        vram = line.split(":")[1].strip()
+                        current_detail["vram"] = vram
+                        # Try to extract numeric value
+                        import re
+                        match = re.search(r'(\d+)\s*(MB|GB)', vram, re.IGNORECASE)
+                        if match:
+                            value = int(match.group(1))
+                            unit = match.group(2).upper()
+                            if unit == "GB":
+                                value *= 1024
+                            current_detail["vram_mb"] = value
+                
+                if current_detail:
+                    gpu_details.append(current_detail)
+                
+                gpu_info["gpu_details"] = gpu_details
+                
+                # Calculate total VRAM
+                vram_total = sum(d.get("vram_mb", 0) for d in gpu_details)
+                if vram_total > 0:
+                    gpu_info["vram_total"] = vram_total
+                    
+        except Exception as e:
+            gpu_info["error"] = str(e)
+        
+        return gpu_info
+    
+    def _detect_cuda(self) -> bool:
+        """Detect if CUDA is available."""
+        # Method 1: Check via nvidia-smi
+        try:
+            result = subprocess.run(
+                "nvidia-smi",
+                shell=True,
+                capture_output=True,
+                timeout=5
+            )
+            if result.returncode == 0:
+                return True
+        except:
+            pass
+        
+        # Method 2: Try importing torch with CUDA
+        try:
+            import torch
+            if torch.cuda.is_available():
+                return True
+        except:
+            pass
+        
+        # Method 3: Check for CUDA toolkit
+        cuda_paths = [
+            "/usr/local/cuda/bin/nvcc",
+            "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\nvcc.exe",
+        ]
+        for path in cuda_paths:
+            if os.path.exists(path):
+                return True
+        
+        return False
+    
+    def _detect_directx(self) -> Optional[str]:
+        """Detect DirectX version on Windows."""
+        if platform.system() != "Windows":
+            return None
+        
+        try:
+            # Check registry for DirectX version
+            result = subprocess.run(
+                'reg query "HKLM\\SOFTWARE\\Microsoft\\DirectX" /v Version',
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.stdout:
+                lines = result.stdout.strip().split('\n')
+                for line in lines:
+                    if "Version" in line:
+                        parts = line.split()
+                        if parts:
+                            return parts[-1]
+        except:
+            pass
+        
+        # Default assumption for modern Windows
+        if platform.version() and "10" in platform.version():
+            return "12"
+        
+        return None
     
     def _get_disk_info(self) -> Dict[str, Any]:
         """Get disk/storage information."""
