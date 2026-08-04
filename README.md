@@ -49,10 +49,10 @@ Perfect for AI/ML training! Copy and paste this code directly into your Google C
   - VRAM-based recommendations for optimal gaming performance
 - 📊 **Performance Scoring**: Get a performance score and recommendations for your system
 - ⚡ **Real FPS Boost**: Applies genuine system optimizations including:
-  - **CPU Boosters (2 New)**:
+  - **CPU Boosters**:
     - CPU Priority Optimization for better process scheduling
     - CPU Affinity Management for efficient core allocation
-  - **GPU Boosters (3 New)**:
+  - **GPU Boosters**:
     - Low Latency Mode for reduced input lag
     - Texture Cache Optimization for faster texture loading
     - Shader Cache Enhancement to reduce stuttering
@@ -64,7 +64,21 @@ Perfect for AI/ML training! Copy and paste this code directly into your Google C
     - Network adapter optimization
     - CPU governor tuning (Linux)
     - Memory cache clearing
+  - **NEW Enhanced System Optimizations (9 additions)**:
+    - **Windows (4 new)**:
+      - Windows Telemetry Disabling for privacy and performance
+      - Startup Apps Optimization guidance
+      - Windows Game Mode activation
+      - Windows Search indexing optimization
+    - **Linux (3 new)**:
+      - Transparent HugePages disabling for reduced latency
+      - IRQ Balancing optimization for consistent performance
+      - Desktop Effects disabling tips for gaming
+    - **macOS (2 new)**:
+      - Spotlight indexing exclusion for game folders
+      - Login Items optimization for faster startup
 - 💾 **RAM Monitor**: Real-time RAM usage monitoring with visual indicators
+- 📝 **Comprehensive Logging**: Detailed logging system with timestamped log files
 - 🎨 **GUI Interface**: User-friendly graphical interface with tabs
 - 💻 **CLI Mode**: Command-line interface for advanced users
 
@@ -82,10 +96,12 @@ X-O-Booster/
 │   └── optimizer.py        # System optimization logic
 ├── utils/
 │   ├── __init__.py
-│   └── hardware.py         # Hardware detection utilities
+│   ├── hardware.py         # Hardware detection utilities
+│   └── logger.py           # Comprehensive logging system
 ├── gui/
 │   ├── __init__.py
 │   └── interface.py        # Graphical user interface
+├── logs/                   # Log files directory (auto-created)
 └── README.md
 ```
 
@@ -177,6 +193,11 @@ The hardware detection now provides comprehensive GPU information:
   - Texture Cache Optimization (increased Direct3D texture memory)
   - Shader Cache Enhancement (Direct3D shader pre-caching)
 - ✅ **GPU Optimization**: NVIDIA persistence mode, PowerMizer enablement, AMD hardware scheduling recommendations
+- ✅ **NEW Enhanced Optimizations**:
+  - Windows Telemetry Disabling (privacy and performance improvement)
+  - Startup Apps Optimization (guidance for disabling unnecessary programs)
+  - Windows Game Mode Activation (better gaming performance)
+  - Windows Search Indexing Optimization (reduced overhead during gaming)
 
 ### Linux
 - ✅ CPU governor set to performance mode (requires root)
@@ -192,6 +213,10 @@ The hardware detection now provides comprehensive GPU information:
   - Texture Cache (OpenGL cache optimization tips)
   - Shader Cache (Vulkan pipeline library support)
 - ✅ **GPU Optimization**: NVIDIA persistence mode & power limits, AMD performance profile tuning
+- ✅ **NEW Enhanced Optimizations**:
+  - Transparent HugePages Disabling (improved latency for real-time applications)
+  - IRQ Balancing Optimization (consistent performance by stopping irqbalance)
+  - Desktop Effects Disabling (tips for disabling compositing while gaming)
 
 ### macOS
 - ✅ Power settings optimization
@@ -203,6 +228,9 @@ The hardware detection now provides comprehensive GPU information:
   - Low Latency Mode (Metal API automatic handling)
   - Texture Cache (Metal API automatic management)
   - Shader Cache (Metal compile-time shaders)
+- ✅ **NEW Enhanced Optimizations**:
+  - Spotlight Indexing Exclusion (exclude game folders from indexing)
+  - Login Items Optimization (guidance for removing unnecessary startup items)
 
 ### GPU-Specific Optimizations
 - **NVIDIA GPUs**: 
@@ -228,6 +256,10 @@ The hardware detection now provides comprehensive GPU information:
 
 ⚠️ **Results May Vary**: FPS improvements depend on your specific hardware configuration and the games you play. Typical improvements range from 5-20% depending on your system.
 
+⚠️ **Logging**: All optimization activities are logged to the `logs/` directory with timestamped log files for troubleshooting and auditing purposes.
+
+⚠️ **Backup Recommended**: While all optimizations are safe, it's always good practice to create a system restore point (Windows) or backup important data before making system-level changes.
+
 ## Safety
 
 This application only applies safe, reversible system optimizations. All optimizations are standard Windows/Linux/macOS settings that can be reset. The application does not:
@@ -250,11 +282,17 @@ This application only applies safe, reversible system optimizations. All optimiz
 **Optimizations fail:**
 - Run the application as administrator/root
 - Check the results section for specific error messages
+- Review log files in the `logs/` directory for detailed error information
 
 **No FPS improvement:**
 - Ensure you restarted your system after applying optimizations
 - Some games may not show immediate improvements
 - Check if your hardware meets the game's requirements
+
+**Log Files:**
+- Log files are automatically created in the `logs/` directory
+- Each session creates a new timestamped log file
+- Logs contain detailed information about all optimization attempts and results
 
 ## License
 
@@ -295,3 +333,55 @@ python main.py
 # Force CLI mode even if GUI is available
 python main.py --no-gui
 ```
+
+## 🆕 What's New (Latest Update)
+
+### New Features Added
+
+#### Enhanced System Optimizations (9 new optimizations)
+
+**Windows (4 new):**
+- `disable_windows_telemetry()` - Disables Windows telemetry and data collection for improved privacy and performance
+- `optimize_startup_apps()` - Provides guidance for disabling unnecessary startup programs
+- `enable_game_mode()` - Activates Windows Game Mode for better gaming performance
+- `optimize_windows_search()` - Reduces Windows Search indexing overhead during gaming
+
+**Linux (3 new):**
+- `disable_transparent_hugepages()` - Improves latency for real-time applications
+- `optimize_irq_balancing()` - Stops irqbalance service for consistent performance
+- `disable_desktop_effects()` - Tips for disabling compositing while gaming
+
+**macOS (2 new):**
+- `optimize_spotlight()` - Excludes game folders from Spotlight indexing
+- `optimize_login_items()` - Guidance for removing unnecessary startup items
+
+#### Comprehensive Logging System
+
+- New `utils/logger.py` module with singleton pattern
+- Timestamped log files stored in `/logs` directory
+- Configurable log levels (DEBUG, INFO, WARNING, ERROR)
+- Automatic log file creation with date/time stamps
+- Detailed tracking of all optimization attempts and results
+
+#### Enhanced Configuration
+
+- GPU-specific optimization settings (NVIDIA/AMD)
+- Hardware detection thresholds for VRAM
+- Logging configuration options
+- All new optimization toggles in `config/settings.py`
+
+### Bug Fixes & Improvements
+
+- ✅ Fixed duplicate return statement in optimizer
+- ✅ Improved error handling with detailed exception messages
+- ✅ Better cross-platform compatibility checks
+- ✅ Enhanced permission checking for root/admin operations
+- ✅ More informative error messages for failed optimizations
+- ✅ Added logger integration throughout the optimizer
+
+### Documentation
+
+- ✅ Created `CHANGELOG.md` with version tracking
+- ✅ Updated code comments and docstrings
+- ✅ Organized code with clear section markers
+- ✅ Enhanced README with new features documentation
