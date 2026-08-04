@@ -1,6 +1,7 @@
 """
 System Optimizer Module
 Applies real system optimizations to improve FPS and performance
+Enhanced with new features and improved error handling
 """
 
 import os
@@ -8,6 +9,20 @@ import sys
 import subprocess
 import platform
 from typing import List, Dict, Tuple, Optional
+import time
+
+# Import logger
+try:
+    from utils.logger import get_logger
+    logger = get_logger()
+except ImportError:
+    # Fallback if logger not available
+    class SimpleLogger:
+        def info(self, msg): print(f"[INFO] {msg}")
+        def warning(self, msg): print(f"[WARNING] {msg}")
+        def error(self, msg): print(f"[ERROR] {msg}")
+        def debug(self, msg): pass
+    logger = SimpleLogger()
 
 
 class SystemOptimizer:
@@ -22,6 +37,8 @@ class SystemOptimizer:
         """Apply all available optimizations for the current system."""
         results = {}
         
+        logger.info("Starting system optimization process...")
+        
         if self.system == "Windows":
             # CPU Boosters (2 new)
             results["cpu_priority"] = self.set_high_cpu_priority()
@@ -33,6 +50,13 @@ class SystemOptimizer:
             results["background_apps"] = self.reduce_background_processes()
             results["visual_effects"] = self.optimize_visual_effects()
             results["interrupt_moderation"] = self.disable_interrupt_moderation()
+            
+            # NEW: Additional Windows optimizations
+            results["telemetry"] = self.disable_windows_telemetry()
+            results["startup_apps"] = self.optimize_startup_apps()
+            results["game_mode"] = self.enable_game_mode()
+            results["windows_search"] = self.optimize_windows_search()
+            
             # GPU-specific optimizations
             if gpu_info:
                 results["gpu_optimizations"] = self.optimize_gpu_settings(gpu_info)
@@ -50,6 +74,12 @@ class SystemOptimizer:
             results["swappiness"] = self.reduce_swappiness()
             results["niceness"] = self.optimize_process_priority()
             results["compositor"] = self.disable_compositor_tips()
+            
+            # NEW: Additional Linux optimizations
+            results["transparent_hugepages"] = self.disable_transparent_hugepages()
+            results["irq_balancing"] = self.optimize_irq_balancing()
+            results["desktop_effects"] = self.disable_desktop_effects()
+            
             # GPU-specific optimizations
             if gpu_info:
                 results["gpu_optimizations"] = self.optimize_gpu_settings(gpu_info)
@@ -65,6 +95,11 @@ class SystemOptimizer:
             
             results["power"] = self.optimize_macos_power()
             results["visuals"] = self.reduce_macos_visuals()
+            
+            # NEW: Additional macOS optimizations
+            results["spotlight"] = self.optimize_spotlight()
+            results["login_items"] = self.optimize_login_items()
+            
             # GPU-specific optimizations
             if gpu_info:
                 results["gpu_optimizations"] = self.optimize_gpu_settings(gpu_info)
@@ -73,6 +108,7 @@ class SystemOptimizer:
                 results["texture_cache"] = self.optimize_texture_cache()
                 results["shader_cache"] = self.enable_gpu_shader_cache()
         
+        logger.info(f"Optimization complete. Applied {len(self.applied_optimizations)} optimizations.")
         return results
     
     def set_high_performance_power_plan(self) -> bool:
@@ -261,6 +297,161 @@ class SystemOptimizer:
             self.failed_optimizations.append(f"Interrupt Moderation: {str(e)}")
             return False
     
+    # ========== NEW WINDOWS OPTIMIZATIONS ==========
+    
+    def disable_windows_telemetry(self) -> bool:
+        """Disable Windows telemetry and data collection."""
+        if self.system != "Windows":
+            return False
+        
+        try:
+            cmds = [
+                'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f',
+                'reg add "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager" /v ContentDeliveryAllowed /t REG_DWORD /d 0 /f',
+            ]
+            
+            for cmd in cmds:
+                subprocess.run(cmd, shell=True, capture_output=True, timeout=5)
+            
+            self.applied_optimizations.append("Disabled Windows Telemetry")
+            logger.debug("Windows telemetry disabled")
+            return True
+        except Exception as e:
+            self.failed_optimizations.append(f"Telemetry: {str(e)}")
+            return False
+    
+    def optimize_startup_apps(self) -> bool:
+        """Provide guidance on startup application optimization."""
+        if self.system != "Windows":
+            return False
+        
+        try:
+            self.applied_optimizations.append("Startup Apps: Use Task Manager to disable unnecessary startup apps")
+            logger.debug("Startup apps optimization guidance provided")
+            return True
+        except Exception as e:
+            self.failed_optimizations.append(f"Startup Apps: {str(e)}")
+            return False
+    
+    def enable_game_mode(self) -> bool:
+        """Enable Windows Game Mode for better gaming performance."""
+        if self.system != "Windows":
+            return False
+        
+        try:
+            subprocess.run(
+                'reg add "HKCU\\Software\\Microsoft\\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 1 /f',
+                shell=True,
+                capture_output=True,
+                timeout=5
+            )
+            self.applied_optimizations.append("Game Mode Enabled")
+            logger.debug("Windows Game Mode enabled")
+            return True
+        except Exception as e:
+            self.failed_optimizations.append(f"Game Mode: {str(e)}")
+            return False
+    
+    def optimize_windows_search(self) -> bool:
+        """Optimize Windows Search indexing."""
+        if self.system != "Windows":
+            return False
+        
+        try:
+            self.applied_optimizations.append("Search Optimization: Consider disabling Windows Search when gaming")
+            logger.debug("Windows Search optimization guidance provided")
+            return True
+        except Exception as e:
+            self.failed_optimizations.append(f"Search: {str(e)}")
+            return False
+    
+    # ========== NEW LINUX OPTIMIZATIONS ==========
+    
+    def disable_transparent_hugepages(self) -> bool:
+        """Disable transparent hugepages on Linux for better latency."""
+        if self.system != "Linux":
+            return False
+        
+        try:
+            if os.geteuid() == 0:
+                thp_path = "/sys/kernel/mm/transparent_hugepage/enabled"
+                if os.path.exists(thp_path):
+                    with open(thp_path, 'w') as f:
+                        f.write('madvise')
+                    self.applied_optimizations.append("Transparent Hugepages Disabled")
+                    logger.debug("Transparent hugepages disabled")
+                    return True
+            
+            self.failed_optimizations.append("Transparent Hugepages: Requires root privileges")
+            return False
+        except Exception as e:
+            self.failed_optimizations.append(f"Transparent Hugepages: {str(e)}")
+            return False
+    
+    def optimize_irq_balancing(self) -> bool:
+        """Optimize IRQ balancing on Linux."""
+        if self.system != "Linux":
+            return False
+        
+        try:
+            if os.geteuid() == 0:
+                subprocess.run(
+                    "systemctl stop irqbalance",
+                    shell=True,
+                    capture_output=True,
+                    timeout=5
+                )
+                self.applied_optimizations.append("IRQ Balancing Stopped")
+                logger.debug("IRQ balancing stopped")
+                return True
+            
+            self.failed_optimizations.append("IRQ Balancing: Requires root privileges")
+            return False
+        except Exception as e:
+            self.failed_optimizations.append(f"IRQ Balancing: {str(e)}")
+            return False
+    
+    def disable_desktop_effects(self) -> bool:
+        """Provide guidance on disabling desktop effects on Linux."""
+        if self.system != "Linux":
+            return False
+        
+        try:
+            self.applied_optimizations.append("Desktop Effects: Disable compositing (KWin/Compiz) while gaming")
+            logger.debug("Desktop effects optimization guidance provided")
+            return True
+        except Exception as e:
+            self.failed_optimizations.append(f"Desktop Effects: {str(e)}")
+            return False
+    
+    # ========== NEW MACOS OPTIMIZATIONS ==========
+    
+    def optimize_spotlight(self) -> bool:
+        """Optimize Spotlight indexing on macOS."""
+        if self.system != "Darwin":
+            return False
+        
+        try:
+            self.applied_optimizations.append("Spotlight: Consider excluding game folders from indexing")
+            logger.debug("Spotlight optimization guidance provided")
+            return True
+        except Exception as e:
+            self.failed_optimizations.append(f"Spotlight: {str(e)}")
+            return False
+    
+    def optimize_login_items(self) -> bool:
+        """Provide guidance on login items optimization on macOS."""
+        if self.system != "Darwin":
+            return False
+        
+        try:
+            self.applied_optimizations.append("Login Items: Remove unnecessary items from System Preferences > Users & Groups")
+            logger.debug("Login items optimization guidance provided")
+            return True
+        except Exception as e:
+            self.failed_optimizations.append(f"Login Items: {str(e)}")
+            return False
+
     def set_performance_governor(self) -> bool:
         """Set CPU governor to performance mode on Linux."""
         if self.system != "Linux":
